@@ -1,6 +1,11 @@
 import re
 
 
+# def fen_details(move, castling_availability, en_pessant, halfmove, fullmove):
+# if move
+# pass
+
+
 def board_to_fen(board):
     board_list = list(board.values())
     rank_list = []
