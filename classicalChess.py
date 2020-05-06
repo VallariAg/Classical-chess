@@ -4,14 +4,12 @@ from sys import argv
 import validMoves
 import pgnToMoves
 import movesToFen
-# PAWN_CAPTURE = 'C'
+# pawn_capture_name = 'C'
 WHITE, BLACK = 'w', 'b'
-# CASTLING = {'K': }
 pgnFile = argv[1]
-CASTLING_AVAILIBILTY, EN_PASSANT, HALFMOVE = 'KQkq', ('-', '-'), 0
 moves = pgnToMoves.pgn_to_moves(pgnFile)
 board_view = pgnToMoves.setup()
-# board -> {'A1': 'R', 'A2': 'B', ...}
+# board_view -> {'A1': 'R', 'A2': 'B', ...}
 
 
 # -- MOVE INFO -- (PIECE, FROM, TO)
@@ -31,7 +29,7 @@ def get_move_info(move):
     piece, from_pos_hint, to_pos = move_dict['piece'], move_dict['from_pos_hint'], move_dict['to_go']
     from_pos = get_from_pos(piece, from_pos_hint, to_pos)
     return piece, from_pos, to_pos
-# -------------
+# ------------------
 
 
 # -- MOVES PIECES -- (gives changes in board_view)
@@ -41,41 +39,25 @@ def move_piece(move):
 
 
 def make_pawn_move(move):
-    global HALFMOVE, EN_PASSANT
-    HALFMOVE = 0
 
-    if is_enpassant(move):
-        global EN_PASSANT
-        EN_PASSANT = ('-', '-')
-        return pawn_capture(move).update({EN_PASSANT[1]: " "})
-    elif is_capture(move):
+    # if is_enpassant(move):
+    # return pawn_capture(move)
+    if is_capture(move):
         return pawn_capture(move)
 
     elif is_pawn_promotion(move):
         return pawn_promotion(move)
     else:
-        piece, from_pos, to_pos = get_move_info(move)
-        if is_two_step(from_pos, to_pos):
-            return make_enpassant(piece, from_pos, to_pos)
-        if EN_PASSANT[1] == from_pos:
-            EN_PASSANT = ('-', '-')
-        return {from_pos: ' ', to_pos: piece}
+        return move_piece(move)
 # -------------
 
 
 def pawn_capture(move):
-    PAWN_CAPTURE = 'c' if move.lower() == move else 'C'
-    move = PAWN_CAPTURE + move[1:]
+    pawn_capture_name = 'c' if move.lower() == move else 'C'
+    move = pawn_capture_name + move[1:]
     move = move.replace('x', '')
     piece, from_pos, to_pos = get_move_info(move)
     piece = 'p' if piece == 'c' else 'P'
-    return {from_pos: ' ', to_pos: piece}
-
-
-def make_enpassant(piece, from_pos, to_pos):
-    global EN_PASSANT
-    add_rank = 1 if piece is 'P' else -1
-    EN_PASSANT = (from_pos[0] + str(int(from_pos[1]) + add_rank), to_pos)
     return {from_pos: ' ', to_pos: piece}
 
 
@@ -92,13 +74,10 @@ def castle(move):
 
 
 # -- IDENTIFY MOVES --
+
+
 def is_pawn_promotion(move):
     return '=' in move
-
-
-def is_enpassant(move):
-    pawn = 'p' if move == move.lower() else 'P'
-    return move[-2:] == EN_PASSANT[0] and EN_PASSANT[1] == pawn
 
 
 def is_two_step(from_pos, to_pos):
@@ -131,8 +110,6 @@ def make_move(move):
         move = move[:-1]
     if is_capture(move) and not is_pawn_move(move):
         move = move.replace('x', '')
-        global HALFMOVE
-        HALFMOVE = 0
     if is_pawn_move(move):
         board_changes = make_pawn_move(move)
     elif is_castling(move):
@@ -143,15 +120,11 @@ def make_move(move):
 
 
 def move_to_fen(COLOR, move):
-    global HALFMOVE
-    HALFMOVE += 1
     if move is not "":
         board_changes = make_move(
             move)
         board_view.update(board_changes)  # BOARD VIEW USED
-        fen = movesToFen.get_full_fen(
-            board_view, COLOR, CASTLING_AVAILIBILTY, EN_PASSANT[0], HALFMOVE, fullmove + 1)
-        return fen
+        return movesToFen.board_to_fen(board_view)
     return ""
 
 
