@@ -8,17 +8,14 @@ def board_to_fen(board):
     for i in range(8):
         this_rank = "".join(board_list[i * 8:(i*8) + 8])
         SPACES = (re.findall(' {1,8}', this_rank))
-        print(SPACES)
         for space in SPACES:
-            # space = space.replace(' ', '+')
-            print(space.replace(' ', '+'))
-            this_rank = this_rank.replace(space, str(len(space)))
+            this_rank = this_rank.replace(space, str(len(space)), 1)
         rank_list += [this_rank]
-    return ' / '.join(reversed(rank_list))
+    return '/'.join(reversed(rank_list))
 
 
 def get_full_fen(board, a_color, castling_availability, en_pessant, halfmove, fullmove):
-    return board_to_fen(board), a_color, castling_availability, en_pessant, halfmove, fullmove
+    return " ".join([board_to_fen(board), a_color, castling_availability, en_pessant, str(halfmove), str(fullmove)])
     # piece, from_pos, destination = get_move_info(move)
     # board_changes = {'R': make_rook_move, 'r': make_rook_move,
     #                  'K': make_king_move, 'k': make_king_move,

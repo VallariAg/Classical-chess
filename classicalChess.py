@@ -52,8 +52,6 @@ def make_pawn_move(move):
         piece, from_pos, to_pos = get_move_info(move)
         piece = 'p' if piece == 'c' else 'P'
         return {from_pos: ' ', to_pos: piece}
-        # print(move)
-        # capture(COLOR, move)
     elif is_pawn_promotion(move):
         return pawn_promotion(move)
     else:
@@ -127,15 +125,39 @@ def make_move(move):
     return board_changes
 
 
-for (fullmove, (wmove, bmove)) in enumerate(moves):
-    if wmove is not "":
-        board_changes = make_move(wmove)
-        board_view.update(board_changes)
-        # print(fullmove, wmove, board_changes)
-    print(movesToFen.board_to_fen(board_view), fullmove)
-    if bmove is not "":
-        board_changes = make_move(bmove)
-        board_view.update(board_changes)
-        # print(bmove, board_changes)
+def move_to_fen(COLOR, move):
+    if move is not "":
+        board_changes = make_move(move)
+        board_view.update(board_changes)  # BOARD VIEW USED
+        fen = movesToFen.get_full_fen(
+            board_view, COLOR, CASTLING_AVAILIBILTY, EN_PASSANT, HALFMOVE, fullmove + 1)
+        return fen
+    return ""
 
-    print(movesToFen.board_to_fen(board_view))
+
+for (fullmove, (wmove, bmove)) in enumerate(moves):
+    fen = move_to_fen('b', wmove)
+    print(fen)
+    fen = move_to_fen('w', bmove)
+    print(fen)
+    # if wmove is not "":
+    #     board_changes = make_move(wmove)
+    #     board_view.update(board_changes)
+    #     fen = movesToFen.get_full_fen(
+    #         board_view, 'w', CASTLING_AVAILIBILTY, EN_PASSANT, HALFMOVE, fullmove + 1)
+    #     # print(fullmove, wmove, board_changes)
+    # print(fen)
+    # if bmove is not "":
+    #     board_changes = make_move(bmove)
+    #     board_view.update(board_changes)
+    #     fen = movesToFen.get_full_fen(
+    #         board_view, 'b', CASTLING_AVAILIBILTY, EN_PASSANT, HALFMOVE, fullmove + 1)
+
+    # print(bmove, board_changes)
+
+    print(fen)
+
+
+# fen = movesToFen.get_full_fen(board_view, 'w', )
+# fen = movesToFen.get_full_fen(
+    # board_view, 'b', CASTLING_AVAILIBILTY, EN_PASSANT, HALFMOVE, fullmove)
